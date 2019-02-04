@@ -1,0 +1,23 @@
+{
+	"FileVersion": 3,
+	"Version": 1,
+	"VersionName": "0.1.0",
+	"FriendlyName": "VRArmIK",
+	"Description": "port of VRArmIK to ue4",
+	"Category": "Virtual Reality",
+	"CreatedBy": "getnamo",
+	"CreatedByURL": "",
+	"DocsURL": "https://github.com/getnamo/VRArmIK-ue4",
+	"MarketplaceURL": "",
+	"SupportURL": "https://github.com/getnamo/VRArmIK-ue4",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "VRArmIK",
+			"Type": "Runtime",
+			"LoadingPhase": "Default"
+		}
+	]
+}

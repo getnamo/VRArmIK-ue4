@@ -217,7 +217,7 @@ struct VRARMIK_API FArmIKTransforms
 };
 
 /**
- * Native C++ class for IK handling, allowing portability. Higher level class uses this for animbp automation.
+ * Native C++ class for IK handling, allowing portability. Higher level class uses this for e.g. animbp automation.
  */
 class VRARMIK_API FVRArmIKNative
 {
@@ -230,6 +230,9 @@ public:
 
 	//Fetch results	
 	void PollArmIKTransforms(FArmIKTransforms& OutTransforms);
+
+	//Callback method, if set, will get called when calculate IK finishes
+	TFunction<void(const FArmIKTransforms&)> OnIKUpdated;
 
 protected:
 
@@ -245,9 +248,8 @@ protected:
 	void RotateElbowWithHandForward();
 	void RotateHand();
 
-	TSharedPtr<FArmIKTransforms> ArmIKTransforms;
-
-	//settings are stack allocated
+	//Data and Settings
+	FArmIKTransforms ArmIKTransforms;
 	FArmIKElbowSettings ElbowSettings;
 	FArmIKBeforePositioningSettings BeforePositioningSettings;
 	FArmIKElbowCorrectionSettings ElbowCorrectionSettings;

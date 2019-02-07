@@ -4,7 +4,6 @@
 
 FVRArmIKNative::FVRArmIKNative()
 {
-	ArmIKTransforms = MakeShareable(new FArmIKTransforms);
 }
 
 FVRArmIKNative::~FVRArmIKNative()
@@ -13,17 +12,22 @@ FVRArmIKNative::~FVRArmIKNative()
 
 void FVRArmIKNative::UpdateInput(const FTransform& InOrigin, const FTransform& InHandLeft, const FTransform& InHandRight, const FTransform& InHead)
 {
-	ArmIKTransforms->Origin = InOrigin;
-	ArmIKTransforms->HandLeft = InHandLeft;
-	ArmIKTransforms->HandRight = InHandRight;
-	ArmIKTransforms->Head = InHead;
+	ArmIKTransforms.Origin = InOrigin;
+	ArmIKTransforms.HandLeft = InHandLeft;
+	ArmIKTransforms.HandRight = InHandRight;
+	ArmIKTransforms.Head = InHead;
 
 	CalculateIK();
+
+	if (OnIKUpdated != nullptr)
+	{
+		OnIKUpdated(ArmIKTransforms);
+	}
 }
 
 void FVRArmIKNative::PollArmIKTransforms(FArmIKTransforms& OutTransforms)
 {
-	OutTransforms = *ArmIKTransforms.Get();
+	OutTransforms = ArmIKTransforms;
 }
 
 void FVRArmIKNative::CalculateIK()

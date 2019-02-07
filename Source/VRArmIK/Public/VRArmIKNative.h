@@ -181,12 +181,75 @@ struct VRARMIK_API FArmIKHandSettings
 	}
 };
 
+USTRUCT(BlueprintType)
+struct VRARMIK_API FArmIKTransforms
+{
+	GENERATED_USTRUCT_BODY()
+
+	//Input
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "FArmIKTransforms")
+	FTransform Origin;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "FArmIKTransforms")
+	FTransform Head;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "FArmIKTransforms")
+	FTransform HandLeft;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "FArmIKTransforms")
+	FTransform HandRight;
+
+	//Derived
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "FArmIKTransforms")
+	FTransform ElbowLeft;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "FArmIKTransforms")
+	FTransform ElbowRight;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "FArmIKTransforms")
+	FTransform ShoulderLeft;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "FArmIKTransforms")
+	FTransform ShoulderRight;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "FArmIKTransforms")
+	FTransform Neck;
+};
+
 /**
- * Native C++ class for IK handling, allowing portability
+ * Native C++ class for IK handling, allowing portability. Higher level class uses this for animbp automation.
  */
 class VRARMIK_API FVRArmIKNative
 {
 public:
 	FVRArmIKNative();
 	~FVRArmIKNative();
+
+	//Update input
+	void UpdateInput(const FTransform& InOrigin, const FTransform& InHandLeft, const FTransform& InHandRight, const FTransform& InHead);
+
+	//Fetch results	
+	void PollArmIKTransforms(FArmIKTransforms& OutTransforms);
+
+protected:
+
+	void CalculateIK();
+	void UpdateArmAndTurnElbowUp();
+	void UpdateUpperArmPosition();
+	void CalcElbowInnerAngle();
+	void RotateShoulder();
+	void CorrectElbowRotation();
+	void PositionElbow();
+	void CorrectElbowAfterPositioning();
+	void RotateElbowWithHandRight();
+	void RotateElbowWithHandForward();
+	void RotateHand();
+
+	TSharedPtr<FArmIKTransforms> ArmIKTransforms;
+
+	//settings are stack allocated
+	FArmIKElbowSettings ElbowSettings;
+	FArmIKBeforePositioningSettings BeforePositioningSettings;
+	FArmIKElbowCorrectionSettings ElbowCorrectionSettings;
+	FArmIKHandSettings HandSettings;
 };

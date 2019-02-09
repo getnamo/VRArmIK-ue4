@@ -1,6 +1,7 @@
 // // Copyright 2017 Synthetic Insights Ltd. All Rights Reserved.sadasd
 
 #include "VRArmIKNative.h"
+#include "Runtime/Engine/Classes/Kismet/KismetMathLibrary.h"
 
 //FVRArmIKNative
 FVROneArmIK::FVROneArmIK()
@@ -93,8 +94,9 @@ void FVROneArmIK::CalcElbowInnerAngle()
 								FMath::Clamp(
 									(FMath::Pow(ArmData->UpperArmLength(), 2.f)
 									+ FMath::Pow(ArmData->LowerArmLength(), 2.f)
-									- FMath::Pow(TargetShoulderDistance, 2.f)) / 
-										(2.f * ArmData->UpperArmLength() * ArmData->LowerArmLength()), -1.f, 1.f)
+									- FMath::Pow(TargetShoulderDistance, 2.f))
+									/ (2.f * ArmData->UpperArmLength() * ArmData->LowerArmLength())
+								, -1.f, 1.f)
 							)
 						);
 
@@ -118,7 +120,30 @@ void FVROneArmIK::CalcElbowInnerAngle()
 void FVROneArmIK::RotateShoulder()
 {
 	FRotator EulerAngles;
-	//todo
+	FVector TargetShoulderDirection = (Target.GetLocation() - UpperArmPos);
+	TargetShoulderDirection.Normalize();
+	float TargetShoulderDistance = (Target.GetLocation() - UpperArmPos).Size();
+
+	EulerAngles.Yaw =	FMath::RadiansToDegrees(
+							(bIsLeft ? -1.f : 1.f) *
+							FMath::Acos(
+								FMath::Clamp(
+									(FMath::Pow(TargetShoulderDistance, 2.f)
+									+ FMath::Pow(ArmData->UpperArmLength(), 2.f)
+									- FMath::Pow(ArmData->LowerArmLength(), 2.f))
+									/ (2.f * TargetShoulderDistance * ArmData->UpperArmLength())
+								, -1.f, 1.f)
+							)
+						);
+
+	if (FMath::IsNaN(EulerAngles.Yaw))
+	{
+		EulerAngles.Yaw = 0.f;
+	}
+		
+	UpperArmRotation = UKismetMathLibrary::FindLookAtRotation(ArmDirection, TargetShoulderDirection);	// FRotationMatrix::MakeFromX(TargetShoulderDirection - ArmDirection).Rotator();
+	ArmData->Shoulder.SetRotation(FQuat(LowerArmRotation.Quaternion() * FVector(0, 0, 1.f), EulerAngles.Yaw) * ArmData->Shoulder.GetRotation());
+	LowerArmRotation = (UpperArmRotation.Quaternion() * NextLowerArmAngle.Quaternion() * LowerArmStartRotation.Quaternion()).Rotator();
 }
 
 void FVROneArmIK::CorrectElbowRotation()

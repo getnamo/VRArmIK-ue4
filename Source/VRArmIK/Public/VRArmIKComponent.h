@@ -26,6 +26,7 @@ public:
 	UPROPERTY(BlueprintAssignable, Category="VRArmIK Component Events")
 	FVRArmIKBodySignature OnIKUpdated;
 
+	UFUNCTION(BlueprintCallable, Category="VRArmIK Functions")
 	void UpdateInput(const FTransform& InOrigin, const FTransform& InHandLeft, const FTransform& InHandRight, const FTransform& InHead);
 
 protected:

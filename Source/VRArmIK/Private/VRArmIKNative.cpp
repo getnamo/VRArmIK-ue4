@@ -2,64 +2,21 @@
 
 #include "VRArmIKNative.h"
 
-//FArmIKArmData
-float FArmIKArmData::UpperArmLength()
-{
-	return (Shoulder.GetLocation() - Elbow.GetLocation()).Size();
-}
-
-float FArmIKArmData::LowerArmLength()
-{
-	return (Elbow.GetLocation() - Hand.GetLocation()).Size();
-}
-
-float FArmIKArmData::ArmLength()
-{
-	return UpperArmLength() + LowerArmLength();
-}
-
-//FArmIKBodyData
-void FArmIKBodyData::Calibrate()
-{
-	ArmSpan = (Left.Hand.GetLocation() - Right.Hand.GetLocation()).Size();
-	Height = Head.GetLocation().Z;
-}
-
 //FVRArmIKNative
-FVRArmIKNative::FVRArmIKNative()
+FVROneArmIK::FVROneArmIK()
 {
 }
 
-FVRArmIKNative::~FVRArmIKNative()
+FVROneArmIK::~FVROneArmIK()
 {
 }
 
-void FVRArmIKNative::UpdateInput(const FTransform& InOrigin, const FTransform& InHandLeft, const FTransform& InHandRight, const FTransform& InHead)
+void FVROneArmIK::SetArmData(FArmIKArmData& InArmData)
 {
-	BodyTransforms.Origin = InOrigin;
-	BodyTransforms.Left.Hand = InHandLeft;
-	BodyTransforms.Right.Hand = InHandRight;
-	BodyTransforms.Head = InHead;
-
-	CalculateIK();
-
-	if (OnIKUpdated != nullptr)
-	{
-		OnIKUpdated(BodyTransforms);
-	}
+	ArmData = &InArmData;
 }
 
-void FVRArmIKNative::PollArmIKTransforms(FArmIKBodyData& OutTransforms)
-{
-	OutTransforms = BodyTransforms;
-}
-
-void FVRArmIKNative::CalibrateIK()
-{
-	BodyTransforms.Calibrate();
-}
-
-void FVRArmIKNative::CalculateIK()
+void FVROneArmIK::CalculateIK()
 {
 	UpdateUpperArmPosition();
 	CalcElbowInnerAngle();
@@ -84,7 +41,7 @@ void FVRArmIKNative::CalculateIK()
 	}
 }
 
-void FVRArmIKNative::UpdateArmAndTurnElbowUp()
+void FVROneArmIK::UpdateArmAndTurnElbowUp()
 {
 	UpdateUpperArmPosition();
 	CalcElbowInnerAngle();
@@ -92,52 +49,91 @@ void FVRArmIKNative::UpdateArmAndTurnElbowUp()
 	CorrectElbowRotation();
 }
 
-void FVRArmIKNative::UpdateUpperArmPosition()
+void FVROneArmIK::UpdateUpperArmPosition()
 {
 	//not used
 }
 
-void FVRArmIKNative::CalcElbowInnerAngle()
+void FVROneArmIK::CalcElbowInnerAngle()
 {
 	FRotator EulerAngles;
 	//todo
 }
 
-void FVRArmIKNative::RotateShoulder()
+void FVROneArmIK::RotateShoulder()
 {
 	FRotator EulerAngles;
 	//todo
 }
 
-void FVRArmIKNative::CorrectElbowRotation()
+void FVROneArmIK::CorrectElbowRotation()
 {
 	//todo
 }
 
-void FVRArmIKNative::PositionElbow()
+void FVROneArmIK::PositionElbow()
 {
 	//todo
 }
 
-void FVRArmIKNative::CorrectElbowAfterPositioning()
+void FVROneArmIK::CorrectElbowAfterPositioning()
 {
 	//todo
 }
 
-void FVRArmIKNative::RotateElbowWithHandRight()
+void FVROneArmIK::RotateElbowWithHandRight()
 {
 	//todo
 }
 
-void FVRArmIKNative::RotateElbowWithHandForward()
+void FVROneArmIK::RotateElbowWithHandForward()
 {
 	//todo
 }
 
-void FVRArmIKNative::RotateHand()
+void FVROneArmIK::RotateHand()
 {
 	//todo
 }
 
+//FVRArmIKNative
+FVRArmIKNative::FVRArmIKNative()
+{
 
+}
 
+FVRArmIKNative::~FVRArmIKNative()
+{
+
+}
+
+void FVRArmIKNative::UpdateInput(const FTransform& InOrigin, const FTransform& InHandLeft, const FTransform& InHandRight, const FTransform& InHead)
+{
+	BodyTransforms.Origin = InOrigin;
+	BodyTransforms.Left.Hand = InHandLeft;
+	BodyTransforms.Right.Hand = InHandRight;
+	BodyTransforms.Head = InHead;
+
+	//do ik per arm
+	LeftIK.SetArmData(BodyTransforms.Left);
+	RightIK.SetArmData(BodyTransforms.Right);
+
+	LeftIK.CalculateIK();
+	RightIK.CalculateIK();
+
+	//callback
+	if (OnIKUpdated != nullptr)
+	{
+		OnIKUpdated(BodyTransforms);
+	}
+}
+
+void FVRArmIKNative::PollArmIKTransforms(FArmIKBodyData& OutTransforms)
+{
+	OutTransforms = BodyTransforms;
+}
+
+void FVRArmIKNative::CalibrateIK()
+{
+	BodyTransforms.Calibrate();
+}

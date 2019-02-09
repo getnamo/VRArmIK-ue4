@@ -14,6 +14,7 @@ public:
 	~FVROneArmIK();
 
 	void SetArmData(FArmIKArmData& InArmData);
+	void SetIsLeft(bool IsLeft);
 	void CalculateIK();
 
 protected:
@@ -33,7 +34,18 @@ protected:
 	FArmIKBeforePositioningSettings BeforePositioningSettings;
 	FArmIKElbowCorrectionSettings ElbowCorrectionSettings;
 	FArmIKHandSettings HandSettings;
+
 	FArmIKArmData* ArmData;
+	FTransform Target;
+
+	bool bIsLeft;
+	FRotator UpperArmStartRotation;
+	FRotator LowerArmStartRotation;
+	FRotator WristStartRotation;
+	FRotator HandStartRotation;
+
+	float InterpolatedDeltaElbow;
+	float InterpolatedDeltaElbowForward;
 };
 
 /**

@@ -5,6 +5,11 @@
 //FVRArmIKNative
 FVROneArmIK::FVROneArmIK()
 {
+	bIsLeft = true;
+	UpperArmStartRotation = FRotator(0.f);
+	LowerArmStartRotation = FRotator(0.f);
+	WristStartRotation = FRotator(0.f);
+	HandStartRotation = FRotator(0.f);
 }
 
 FVROneArmIK::~FVROneArmIK()
@@ -14,6 +19,11 @@ FVROneArmIK::~FVROneArmIK()
 void FVROneArmIK::SetArmData(FArmIKArmData& InArmData)
 {
 	ArmData = &InArmData;
+}
+
+void FVROneArmIK::SetIsLeft(bool IsLeft)
+{
+	bIsLeft = IsLeft;
 }
 
 void FVROneArmIK::CalculateIK()
@@ -99,7 +109,8 @@ void FVROneArmIK::RotateHand()
 //FVRArmIKNative
 FVRArmIKNative::FVRArmIKNative()
 {
-
+	LeftIK.SetIsLeft(true);
+	RightIK.SetIsLeft(false);
 }
 
 FVRArmIKNative::~FVRArmIKNative()
@@ -114,7 +125,7 @@ void FVRArmIKNative::UpdateInput(const FTransform& InOrigin, const FTransform& I
 	BodyTransforms.Right.Hand = InHandRight;
 	BodyTransforms.Head = InHead;
 
-	//do ik per arm
+	//do IK per arm
 	LeftIK.SetArmData(BodyTransforms.Left);
 	RightIK.SetArmData(BodyTransforms.Right);
 

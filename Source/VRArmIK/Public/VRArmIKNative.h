@@ -22,7 +22,9 @@ protected:
 	void UpdateUpperArmPosition();
 	void CalcElbowInnerAngle();
 	void RotateShoulder();
+	float GetElbowTargetAngle();
 	void CorrectElbowRotation();
+	void RotateElbow(float Angle);
 	void PositionElbow();
 	void CorrectElbowAfterPositioning();
 	void RotateElbowWithHandRight();

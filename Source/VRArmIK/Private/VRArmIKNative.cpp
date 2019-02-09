@@ -146,14 +146,30 @@ void FVROneArmIK::RotateShoulder()
 	LowerArmRotation = (UpperArmRotation.Quaternion() * NextLowerArmAngle.Quaternion() * LowerArmStartRotation.Quaternion()).Rotator();
 }
 
+float FVROneArmIK::GetElbowTargetAngle()
+{
+	//todo
+	return 0.f;
+}
+
 void FVROneArmIK::CorrectElbowRotation()
 {
 	//todo
 }
 
+void FVROneArmIK::RotateElbow(float Angle)
+{
+	FVector ShoulderHandDirection = (UpperArmPos - HandPos);
+	ShoulderHandDirection.Normalize();
+
+	FQuat Rotation = FQuat(ShoulderHandDirection, Angle);
+	UpperArmRotation = (Rotation * UpperArmRotation.Quaternion()).Rotator();
+}
+
 void FVROneArmIK::PositionElbow()
 {
-	//todo
+	float TargetElbowAngle = GetElbowTargetAngle();
+	RotateElbow(TargetElbowAngle);
 }
 
 void FVROneArmIK::CorrectElbowAfterPositioning()

@@ -186,6 +186,29 @@ struct VRARMIK_API FArmIKTransforms
 {
 	GENERATED_USTRUCT_BODY()
 
+	//Input, also the 'target' in the unity reference
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "FArmIKTransforms")
+	FTransform Hand;
+
+	//Derived
+	UPROPERTY(BlueprintReadOnly, Category = "FArmIKTransforms")
+	FTransform Elbow;
+
+	UPROPERTY(BlueprintReadOnly, Category = "FArmIKTransforms")
+	FTransform Shoulder;
+
+	float UpperArmLength();
+	float LowerArmLength();
+	float ArmLength();
+
+	//todo add scaling func/params, needs thought of how to integrate this in ue4 way
+};
+
+USTRUCT(BlueprintType)
+struct VRARMIK_API FArmIKBodyTransforms
+{
+	GENERATED_USTRUCT_BODY()
+
 	//Input
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "FArmIKTransforms")
 	FTransform Origin;
@@ -194,26 +217,24 @@ struct VRARMIK_API FArmIKTransforms
 	FTransform Head;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "FArmIKTransforms")
-	FTransform HandLeft;
+	FArmIKTransforms Left;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "FArmIKTransforms")
-	FTransform HandRight;
+	FArmIKTransforms Right;
 
 	//Derived
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "FArmIKTransforms")
-	FTransform ElbowLeft;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "FArmIKTransforms")
-	FTransform ElbowRight;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "FArmIKTransforms")
-	FTransform ShoulderLeft;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "FArmIKTransforms")
-	FTransform ShoulderRight;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "FArmIKTransforms")
+	UPROPERTY(BlueprintReadOnly, Category = "FArmIKTransforms")
 	FTransform Neck;
+
+	//Derived at Calibration
+	UPROPERTY(BlueprintReadOnly, Category = "FArmIKTransforms")
+	float ArmSpan;
+
+	UPROPERTY(BlueprintReadOnly, Category = "FArmIKTransforms")
+	float Height;
+
+	//should only be called during calibration pose (T pose)
+	void Calibrate();
 };
 
 /**
@@ -229,10 +250,13 @@ public:
 	void UpdateInput(const FTransform& InOrigin, const FTransform& InHandLeft, const FTransform& InHandRight, const FTransform& InHead);
 
 	//Fetch results	
-	void PollArmIKTransforms(FArmIKTransforms& OutTransforms);
+	void PollArmIKTransforms(FArmIKBodyTransforms& OutTransforms);
+
+	//Calibrate call based on current inputs
+	void CalibrateIK();
 
 	//Callback method, if set, will get called when calculate IK finishes
-	TFunction<void(const FArmIKTransforms&)> OnIKUpdated;
+	TFunction<void(const FArmIKBodyTransforms&)> OnIKUpdated;
 
 protected:
 
@@ -249,7 +273,7 @@ protected:
 	void RotateHand();
 
 	//Data and Settings
-	FArmIKTransforms ArmIKTransforms;
+	FArmIKBodyTransforms BodyTransforms;
 	FArmIKElbowSettings ElbowSettings;
 	FArmIKBeforePositioningSettings BeforePositioningSettings;
 	FArmIKElbowCorrectionSettings ElbowCorrectionSettings;

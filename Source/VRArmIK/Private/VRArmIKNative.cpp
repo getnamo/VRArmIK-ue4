@@ -2,6 +2,30 @@
 
 #include "VRArmIKNative.h"
 
+//FArmIKTransforms
+float FArmIKTransforms::UpperArmLength()
+{
+	return (Shoulder.GetLocation() - Elbow.GetLocation()).Size();
+}
+
+float FArmIKTransforms::LowerArmLength()
+{
+	return (Elbow.GetLocation() - Hand.GetLocation()).Size();
+}
+
+float FArmIKTransforms::ArmLength()
+{
+	return UpperArmLength() + LowerArmLength();
+}
+
+//FArmIKBodyTransforms
+void FArmIKBodyTransforms::Calibrate()
+{
+	ArmSpan = (Left.Hand.GetLocation() - Right.Hand.GetLocation()).Size();
+	Height = Head.GetLocation().Z;
+}
+
+//FVRArmIKNative
 FVRArmIKNative::FVRArmIKNative()
 {
 }
@@ -12,22 +36,27 @@ FVRArmIKNative::~FVRArmIKNative()
 
 void FVRArmIKNative::UpdateInput(const FTransform& InOrigin, const FTransform& InHandLeft, const FTransform& InHandRight, const FTransform& InHead)
 {
-	ArmIKTransforms.Origin = InOrigin;
-	ArmIKTransforms.HandLeft = InHandLeft;
-	ArmIKTransforms.HandRight = InHandRight;
-	ArmIKTransforms.Head = InHead;
+	BodyTransforms.Origin = InOrigin;
+	BodyTransforms.Left.Hand = InHandLeft;
+	BodyTransforms.Right.Hand = InHandRight;
+	BodyTransforms.Head = InHead;
 
 	CalculateIK();
 
 	if (OnIKUpdated != nullptr)
 	{
-		OnIKUpdated(ArmIKTransforms);
+		OnIKUpdated(BodyTransforms);
 	}
 }
 
-void FVRArmIKNative::PollArmIKTransforms(FArmIKTransforms& OutTransforms)
+void FVRArmIKNative::PollArmIKTransforms(FArmIKBodyTransforms& OutTransforms)
 {
-	OutTransforms = ArmIKTransforms;
+	OutTransforms = BodyTransforms;
+}
+
+void FVRArmIKNative::CalibrateIK()
+{
+	BodyTransforms.Calibrate();
 }
 
 void FVRArmIKNative::CalculateIK()
@@ -40,11 +69,17 @@ void FVRArmIKNative::CalculateIK()
 	{
 		PositionElbow();
 		if (ElbowCorrectionSettings.bUseFixedElbowWhenNearShoulder)
+		{
 			CorrectElbowAfterPositioning();
+		}
 		if (HandSettings.bRotateElbowWithHandRight)
+		{
 			RotateElbowWithHandRight();
+		}
 		if (HandSettings.bRotateElbowWithHandForward)
+		{
 			RotateElbowWithHandForward();
+		}
 		RotateHand();
 	}
 }
@@ -103,3 +138,6 @@ void FVRArmIKNative::RotateHand()
 {
 	//todo
 }
+
+
+

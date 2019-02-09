@@ -19,6 +19,17 @@ FVROneArmIK::~FVROneArmIK()
 void FVROneArmIK::SetArmData(FArmIKArmData& InArmData)
 {
 	ArmData = &InArmData;
+	Target = InArmData.Hand;
+	ArmDirection = bIsLeft ? FVector(0, -1.f, 0) : FVector(0, 1.f, 0);
+	UpperArmPos = InArmData.Shoulder.GetLocation();
+	LowerArmPos = InArmData.Elbow.GetLocation();
+	HandPos = InArmData.Hand.GetLocation();
+	ShoulderAnchor = InArmData.Shoulder;
+
+	//optimization: use quaternions only
+	UpperArmRotation = (InArmData.Shoulder.GetRotation() * UpperArmStartRotation.Quaternion().Inverse()).Rotator();
+	LowerArmRotation = (InArmData.Elbow.GetRotation() * LowerArmStartRotation.Quaternion().Inverse()).Rotator();
+	HandRotation = (InArmData.Hand.GetRotation() * HandStartRotation.Quaternion().Inverse()).Rotator();
 }
 
 void FVROneArmIK::SetIsLeft(bool IsLeft)
@@ -67,7 +78,41 @@ void FVROneArmIK::UpdateUpperArmPosition()
 void FVROneArmIK::CalcElbowInnerAngle()
 {
 	FRotator EulerAngles;
-	//todo
+	
+	float TargetShoulderDistance = (Target.GetLocation() - UpperArmPos).Size();
+	float InnerAngle;
+
+	if (TargetShoulderDistance > ArmData->ArmLength())
+	{
+		InnerAngle = 0.f;
+	}
+	else
+	{
+		InnerAngle =	FMath::RadiansToDegrees(
+							FMath::Acos(
+								FMath::Clamp(
+									(FMath::Pow(ArmData->UpperArmLength(), 2.f)
+									+ FMath::Pow(ArmData->LowerArmLength(), 2.f)
+									- FMath::Pow(TargetShoulderDistance, 2.f)) / 
+										(2.f * ArmData->UpperArmLength() * ArmData->LowerArmLength()), -1.f, 1.f)
+							)
+						);
+
+		if (bIsLeft)
+		{
+			InnerAngle = 180.f - InnerAngle;
+		}
+		else
+		{
+			InnerAngle = 180.f + InnerAngle;
+		}
+		if (FMath::IsNaN(InnerAngle))
+		{
+			InnerAngle = 180.f;
+		}
+	}
+	EulerAngles.Yaw = InnerAngle;
+	NextLowerArmAngle = EulerAngles;
 }
 
 void FVROneArmIK::RotateShoulder()

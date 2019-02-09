@@ -34,6 +34,7 @@ protected:
 	FArmIKBeforePositioningSettings BeforePositioningSettings;
 	FArmIKElbowCorrectionSettings ElbowCorrectionSettings;
 	FArmIKHandSettings HandSettings;
+	FRotator NextLowerArmAngle;
 
 	FArmIKArmData* ArmData;
 	FTransform Target;
@@ -46,6 +47,16 @@ protected:
 
 	float InterpolatedDeltaElbow;
 	float InterpolatedDeltaElbowForward;
+
+	FVector ArmDirection;
+	FVector UpperArmPos;
+	FVector LowerArmPos;
+	FVector HandPos;
+	FTransform ShoulderAnchor;
+
+	FRotator UpperArmRotation;
+	FRotator LowerArmRotation;
+	FRotator HandRotation;
 };
 
 /**

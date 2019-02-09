@@ -64,10 +64,10 @@ struct VRARMIK_API FArmIKElbowSettings
 		zWeight = -60.f;
 		zWeightTop = 260.f;
 		zWeightBottom = -100.f;
-		zBorderY = -0.25f;
-		zDistanceStart = 0.6f;
+		zBorderY = -25.f;
+		zDistanceStart = 60.f;
 		xWeight = -50.f;
-		xDistanceStart = 0.1f;
+		xDistanceStart = 10.f;
 	}
 };
 
@@ -92,8 +92,8 @@ struct VRARMIK_API FArmIKBeforePositioningSettings
 	{
 		bCorrectElbowOutside = true;
 		Weight = -0.5f;
-		StartBelowZ = 0.4f;
-		StartAboveY = 0.1f;
+		StartBelowZ = 40.f;
+		StartAboveY = 10.f;
 	}
 };
 
@@ -120,8 +120,8 @@ struct VRARMIK_API FArmIKElbowCorrectionSettings
 	FArmIKElbowCorrectionSettings()
 	{
 		bUseFixedElbowWhenNearShoulder = true;
-		StartBelowDistance = 0.5f;
-		StartBelowY = 0.1f;
+		StartBelowDistance = 50.f;
+		StartBelowY = 10.f;
 		Weight = 2.f;
 		LocalElbowPos = FVector(0.3f, -1.f, -2.f);
 	}
@@ -222,6 +222,9 @@ struct VRARMIK_API FArmIKBodyData
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "FArmIKTransforms")
 	FArmIKArmData Right;
 
+	UPROPERTY(BlueprintReadOnly, Category = "FArmIKTransforms")
+	float ShoulderWidth;
+
 	//Derived
 	UPROPERTY(BlueprintReadOnly, Category = "FArmIKTransforms")
 	FTransform Neck;
@@ -235,6 +238,11 @@ struct VRARMIK_API FArmIKBodyData
 
 	//should only be called during calibration pose (T pose)
 	void Calibrate();
+
+	FArmIKBodyData()
+	{
+		ShoulderWidth = 31.f;	//cm
+	}
 };
 
 /**

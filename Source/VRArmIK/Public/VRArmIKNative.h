@@ -182,7 +182,7 @@ struct VRARMIK_API FArmIKHandSettings
 };
 
 USTRUCT(BlueprintType)
-struct VRARMIK_API FArmIKTransforms
+struct VRARMIK_API FArmIKArmData
 {
 	GENERATED_USTRUCT_BODY()
 
@@ -205,7 +205,7 @@ struct VRARMIK_API FArmIKTransforms
 };
 
 USTRUCT(BlueprintType)
-struct VRARMIK_API FArmIKBodyTransforms
+struct VRARMIK_API FArmIKBodyData
 {
 	GENERATED_USTRUCT_BODY()
 
@@ -217,10 +217,10 @@ struct VRARMIK_API FArmIKBodyTransforms
 	FTransform Head;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "FArmIKTransforms")
-	FArmIKTransforms Left;
+	FArmIKArmData Left;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "FArmIKTransforms")
-	FArmIKTransforms Right;
+	FArmIKArmData Right;
 
 	//Derived
 	UPROPERTY(BlueprintReadOnly, Category = "FArmIKTransforms")
@@ -250,13 +250,13 @@ public:
 	void UpdateInput(const FTransform& InOrigin, const FTransform& InHandLeft, const FTransform& InHandRight, const FTransform& InHead);
 
 	//Fetch results	
-	void PollArmIKTransforms(FArmIKBodyTransforms& OutTransforms);
+	void PollArmIKTransforms(FArmIKBodyData& OutTransforms);
 
-	//Calibrate call based on current inputs
+	//Calibrate call based on current inputs, assumes a T pose
 	void CalibrateIK();
 
 	//Callback method, if set, will get called when calculate IK finishes
-	TFunction<void(const FArmIKBodyTransforms&)> OnIKUpdated;
+	TFunction<void(const FArmIKBodyData&)> OnIKUpdated;
 
 protected:
 
@@ -273,7 +273,7 @@ protected:
 	void RotateHand();
 
 	//Data and Settings
-	FArmIKBodyTransforms BodyTransforms;
+	FArmIKBodyData BodyTransforms;
 	FArmIKElbowSettings ElbowSettings;
 	FArmIKBeforePositioningSettings BeforePositioningSettings;
 	FArmIKElbowCorrectionSettings ElbowCorrectionSettings;

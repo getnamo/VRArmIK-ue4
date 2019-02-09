@@ -176,7 +176,7 @@ struct VRARMIK_API FArmIKHandSettings
 		HandDeltaForwardPow = 2.f;
 		HandDeltaForwardFactor = 1.f;
 		HandDeltaForwardOffset = 0.f;
-		HandDeltaForwardDeadzone = 0.3f;
+		HandDeltaForwardDeadzone = 30.f;
 		RotateElbowWithHandDelay = 0.08f;
 	}
 };

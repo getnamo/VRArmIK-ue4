@@ -2,24 +2,24 @@
 
 #include "VRArmIKNative.h"
 
-//FArmIKTransforms
-float FArmIKTransforms::UpperArmLength()
+//FArmIKArmData
+float FArmIKArmData::UpperArmLength()
 {
 	return (Shoulder.GetLocation() - Elbow.GetLocation()).Size();
 }
 
-float FArmIKTransforms::LowerArmLength()
+float FArmIKArmData::LowerArmLength()
 {
 	return (Elbow.GetLocation() - Hand.GetLocation()).Size();
 }
 
-float FArmIKTransforms::ArmLength()
+float FArmIKArmData::ArmLength()
 {
 	return UpperArmLength() + LowerArmLength();
 }
 
-//FArmIKBodyTransforms
-void FArmIKBodyTransforms::Calibrate()
+//FArmIKBodyData
+void FArmIKBodyData::Calibrate()
 {
 	ArmSpan = (Left.Hand.GetLocation() - Right.Hand.GetLocation()).Size();
 	Height = Head.GetLocation().Z;
@@ -49,7 +49,7 @@ void FVRArmIKNative::UpdateInput(const FTransform& InOrigin, const FTransform& I
 	}
 }
 
-void FVRArmIKNative::PollArmIKTransforms(FArmIKBodyTransforms& OutTransforms)
+void FVRArmIKNative::PollArmIKTransforms(FArmIKBodyData& OutTransforms)
 {
 	OutTransforms = BodyTransforms;
 }

@@ -301,11 +301,39 @@ void FVROneArmIK::RotateElbowWithHandRight()
 
 void FVROneArmIK::RotateElbowWithHandForward()
 {
-	//todo
+	const FArmIKHandSettings& s = HandSettings;
+	FVector HandRightVec = Target.GetRotation() * ArmDirection;
+
+	float ElbowTargetAngleForward = AngleBetweenWithForwardAxis(
+		LowerArmRotation.Quaternion() * ArmDirection,
+		HandRightVec,
+		LowerArmRotation.Quaternion().GetUpVector(),
+		LowerArmRotation.Quaternion().GetForwardVector()
+	);
+
+	float DeltaElbowForward = (ElbowTargetAngleForward + (bIsLeft ? -s.HandDeltaForwardOffset : s.HandDeltaForwardOffset)) / 180.f;
+
+	if (FMath::Abs(DeltaElbowForward) < s.HandDeltaForwardDeadzone)
+	{
+		DeltaElbowForward = 0.f;
+	}
+	else
+	{
+		DeltaElbowForward = (DeltaElbowForward - FMath::Sign(DeltaElbowForward) * s.HandDeltaForwardDeadzone) / (1.f - s.HandDeltaForwardDeadzone);
+	}
+
+	//todo: feed in deltatime
+	float DeltaTime = FApp::GetDeltaTime();
+	DeltaElbowForward = FMath::Sign(DeltaElbowForward) * FMath::Pow(FMath::Abs(DeltaElbowForward), s.HandDeltaForwardPow) * 180.f;
+	InterpolatedDeltaElbowForward = FMath::Lerp(InterpolatedDeltaElbowForward, DeltaElbowForward, DeltaTime / s.RotateElbowWithHandDelay);
+
+	float SignedInterpolated = InterpolatedDeltaElbowForward; //not sure what toSignedEulerAngle does
+	RotateElbow(SignedInterpolated * s.HandDeltaForwardFactor);
 }
 
 void FVROneArmIK::RotateHand()
 {
+	const FArmIKHandSettings& s = HandSettings;
 	//todo
 }
 

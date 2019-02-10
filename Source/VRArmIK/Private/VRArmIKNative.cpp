@@ -333,8 +333,38 @@ void FVROneArmIK::RotateElbowWithHandForward()
 
 void FVROneArmIK::RotateHand()
 {
-	const FArmIKHandSettings& s = HandSettings;
-	//todo
+	if (HandSettings.bUseWristRotation)
+	{
+		FVector HandUpVec = Target.GetRotation().GetUpVector();
+		float ForwardAngle = AngleBetweenWithForwardAxis(
+			LowerArmRotation.Quaternion().GetRightVector(),
+			Target.GetRotation().GetRightVector(),
+			LowerArmRotation.Quaternion().GetUpVector(),
+			LowerArmRotation.Quaternion().GetForwardVector()
+		);
+
+		// todo reduce influence if hand local forward rotation is high (hand tilted inside)
+		FQuat HandForwardRotation = FQuat(LowerArmRotation.Quaternion().GetForwardVector(), -ForwardAngle);
+		HandUpVec = HandForwardRotation * HandUpVec;
+
+		float ElbowTargetAngle = AngleBetweenWithForwardAxis(
+			LowerArmRotation.Quaternion().GetUpVector(),
+			HandUpVec,
+			LowerArmRotation.Quaternion().GetForwardVector(),
+			LowerArmRotation.Quaternion() * ArmDirection
+		);
+
+		ElbowTargetAngle = FMath::Clamp(ElbowTargetAngle, -90.f, 90.f);
+		
+		/* this part is ignored for now
+		if (arm.wrist1 != null)
+			setWrist1Rotation(Quaternion.AngleAxis(elbowTargetAngle * .3f, lowerArmRotation * armDirection) * lowerArmRotation);
+		if (arm.wrist2 != null)
+			setWrist2Rotation(Quaternion.AngleAxis(elbowTargetAngle * .8f, lowerArmRotation * armDirection) * lowerArmRotation);
+		*/
+	}
+	
+	HandRotation = Target.Rotator();
 }
 
 float FVROneArmIK::AngleBetween(const FVector& A, const FVector& B)

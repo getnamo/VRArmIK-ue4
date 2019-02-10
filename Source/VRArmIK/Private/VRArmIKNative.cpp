@@ -1,4 +1,4 @@
-// // Copyright 2017 Synthetic Insights Ltd. All Rights Reserved.sadasd
+// Copyright 2019-Current Synthetic Insights Ltd. All Rights Reserved.
 
 #include "VRArmIKNative.h"
 #include "Runtime/Engine/Classes/Kismet/KismetMathLibrary.h"
@@ -272,7 +272,14 @@ void FVROneArmIK::RotateElbowWithHandRight()
 {
 	const FArmIKHandSettings& s = HandSettings;
 	FVector HandUpVec = Target.GetRotation().GetUpVector();
-	float ForwardAngle = AngleBetween(LowerArmRotation.Quaternion() * FVector::RightVector, Target.GetRotation() * FVector::RightVector)
+	float ForwardAngle = AngleBetweenWithForwardAxis(
+		LowerArmRotation.Quaternion() * FVector::RightVector, 
+		Target.GetRotation() * FVector::RightVector,
+		LowerArmRotation.Quaternion() * FVector::UpVector,
+		LowerArmRotation.Quaternion() * FVector::ForwardVector);
+
+	// todo reduce influence if hand local forward rotation is high (hand tilted inside)
+	FQuat HandForwardRotation = FQuat
 }
 
 void FVROneArmIK::RotateElbowWithHandForward()

@@ -1,4 +1,5 @@
-// Copyright 2019 Synthetic Insights Ltd. All Rights Reserved.
+// Copyright 2019-Current Synthetic Insights Ltd. All Rights Reserved.
+
 #include "VRArmIKData.h"
 
 //FArmIKArmData

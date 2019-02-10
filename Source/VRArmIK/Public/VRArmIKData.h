@@ -32,7 +32,7 @@ struct VRARMIK_API FArmIKElbowSettings
 	float OffsetAngle;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "ArmIKElbowSettings")
-	float zWeight;
+	float yWeight;
 
 	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "ArmIKElbowSettings")
 	float zWeightTop;
@@ -61,7 +61,7 @@ struct VRARMIK_API FArmIKElbowSettings
 		MinAngle = 13.f;
 		SoftClampRange = 10.f;
 		OffsetAngle = 135.f;
-		zWeight = -60.f;
+		yWeight = -60.f;
 		zWeightTop = 260.f;
 		zWeightBottom = -100.f;
 		zBorderY = -25.f;

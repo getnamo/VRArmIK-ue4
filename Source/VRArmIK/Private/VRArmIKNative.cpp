@@ -148,8 +148,46 @@ void FVROneArmIK::RotateShoulder()
 
 float FVROneArmIK::GetElbowTargetAngle()
 {
-	//todo
-	return 0.f;
+	FVector LocalHandPosNormalized = ShoulderAnchor.InverseTransformPosition(HandPos) / ArmData->ArmLength();
+
+	//angle from Y
+	float Angle = ElbowSettings.yWeight * LocalHandPosNormalized.Y + ElbowSettings.OffsetAngle;
+
+	//angle from Z
+	if (LocalHandPosNormalized.Y > 0)
+	{
+		Angle += ElbowSettings.zWeightTop * (
+			FMath::Max(ElbowSettings.zDistanceStart - LocalHandPosNormalized.Z, 0.f) *
+			FMath::Max(LocalHandPosNormalized.Y, 0.F));
+	}
+	else
+	{
+		Angle += ElbowSettings.zWeightBottom * (
+			FMath::Max(ElbowSettings.zDistanceStart - LocalHandPosNormalized.Z, 0.f) *
+			FMath::Max(-LocalHandPosNormalized.Y, 0.F));
+	}
+
+	//angle from x
+	Angle += ElbowSettings.xWeight * FMath::Max(
+		LocalHandPosNormalized.X * (bIsLeft ? 1.f : -1.f) + ElbowSettings.xDistanceStart, 0.f);
+
+	if (ElbowSettings.bClampElbowAngle)
+	{
+		if (ElbowSettings.bSoftClampElbowAngle)
+		{
+			if (Angle < ElbowSettings.MinAngle + ElbowSettings.SoftClampRange)
+			{
+				float a = ElbowSettings.MinAngle + ElbowSettings.SoftClampRange - Angle;
+				Angle = ElbowSettings.MinAngle + ElbowSettings.SoftClampRange * (1.f - FMath::Loge(1.f + a) * 3.f);
+			}
+		}
+		else
+		{
+			Angle = FMath::Clamp(Angle, ElbowSettings.MinAngle, ElbowSettings.MaxAngle);
+		}
+	}
+
+	return Angle;
 }
 
 void FVROneArmIK::CorrectElbowRotation()

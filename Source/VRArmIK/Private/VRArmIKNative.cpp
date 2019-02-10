@@ -214,6 +214,43 @@ void FVROneArmIK::CorrectElbowRotation()
 	ArmData->Shoulder.SetRotation(Rotation * ArmData->Shoulder.GetRotation());
 }
 
+//reduces calculation problems when hand is moving around shoulder XZ coordinates -> forces elbow to be outside of body
+void FVROneArmIK::CorrectElbowAfterPositioning()
+{
+	const FArmIKElbowCorrectionSettings& s = ElbowCorrectionSettings;
+	FVector LocalTargetPos = ShoulderAnchor.InverseTransformPosition(Target.GetLocation()) / ArmData->ArmLength();
+	FVector ShoulderHandDirection = (UpperArmPos - HandPos);
+	ShoulderHandDirection.Normalize();
+	FVector ElbowPos = s.LocalElbowPos;
+
+	if (bIsLeft)
+	{
+		ElbowPos.X *= -1.f;
+	}
+
+	FVector TargetDir = ArmData->Shoulder.GetRotation() * ElbowPos.GetSafeNormal();
+	FVector Cross = FVector::CrossProduct(ShoulderHandDirection, TargetDir);
+
+	FVector UpperArmUp = UpperArmRotation.Quaternion() * FVector(0, 0, 1);
+
+	FVector Distance = Target.GetLocation() - UpperArmPos;
+	Distance = Distance.Size() * ArmData->Shoulder.InverseTransformVectorNoScale(Distance / Distance.Size());
+
+	float Weight = FMath::Clamp(
+		FMath::Clamp((s.StartBelowDistance - FVector(Distance.X, 0, Distance.Z).Size() / ArmData->ArmLength()) / s.StartBelowDistance, 0.f, 1.f) * 
+		s.Weight +
+		FMath::Clamp((-Distance.Z + 0.1f) * 3.f, 0.f, 1.f) * 
+		FMath::Clamp((s.StartBelowY - LocalTargetPos.Y) / s.StartBelowY, 0.f, 1.f)
+		, 0.f, 1.f);
+
+	float ElbowTargetUp = UpperArmUp | TargetDir;
+	float ElbowAngle2 = AngleBetween(Cross, UpperArmUp) + (bIsLeft ? 0.f : 180.f);
+
+	//below is missing toSignedEulerAngle(), not sure what that does yet
+	FQuat Rotation = FQuat(ShoulderHandDirection, ElbowAngle2 * FMath::Sign(ElbowTargetUp) * FMath::Clamp(Weight, 0.f, 1.f));
+	ArmData->Shoulder.SetRotation(Rotation * ArmData->Shoulder.GetRotation());
+}
+
 void FVROneArmIK::RotateElbow(float Angle)
 {
 	FVector ShoulderHandDirection = (UpperArmPos - HandPos);
@@ -229,10 +266,7 @@ void FVROneArmIK::PositionElbow()
 	RotateElbow(TargetElbowAngle);
 }
 
-void FVROneArmIK::CorrectElbowAfterPositioning()
-{
-	//todo
-}
+
 
 void FVROneArmIK::RotateElbowWithHandRight()
 {

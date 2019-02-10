@@ -1,6 +1,7 @@
 // Copyright 2019-Current Synthetic Insights Ltd. All Rights Reserved.
 
 #include "VRArmIKNative.h"
+#include "App.h"
 #include "Runtime/Engine/Classes/Kismet/KismetMathLibrary.h"
 
 //FVRArmIKNative
@@ -279,7 +280,23 @@ void FVROneArmIK::RotateElbowWithHandRight()
 		LowerArmRotation.Quaternion() * FVector::ForwardVector);
 
 	// todo reduce influence if hand local forward rotation is high (hand tilted inside)
-	FQuat HandForwardRotation = FQuat
+	FQuat HandForwardRotation = FQuat(LowerArmRotation.Quaternion() * FVector::ForwardVector, FMath::DegreesToRadians(-ForwardAngle));	//should this not have deg2rad?
+	HandUpVec = HandForwardRotation * HandUpVec;
+
+	float ElbowTargetAngle = AngleBetweenWithForwardAxis(
+		LowerArmRotation.Quaternion() * FVector::UpVector,
+		HandUpVec,
+		LowerArmRotation.Quaternion() * FVector::ForwardVector,
+		LowerArmRotation.Quaternion() * ArmDirection);
+
+	float DeltaElbow = (ElbowTargetAngle + (bIsLeft ? -s.HandDeltaOffset : s.HandDeltaOffset)) / 180.f;
+
+	DeltaElbow = FMath::Sign(DeltaElbow) * FMath::Pow(FMath::Abs(DeltaElbow), s.HandDeltaPow) * 180.f * s.HandDeltaFactor;
+	
+	//todo: feed in deltatime
+	float DeltaTime = FApp::GetDeltaTime();
+	InterpolatedDeltaElbow = FMath::Lerp(InterpolatedDeltaElbow, DeltaElbow, DeltaTime / s.RotateElbowWithHandDelay);
+	RotateElbow(InterpolatedDeltaElbow);
 }
 
 void FVROneArmIK::RotateElbowWithHandForward()

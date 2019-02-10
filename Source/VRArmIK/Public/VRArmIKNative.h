@@ -31,6 +31,8 @@ protected:
 	void RotateElbowWithHandForward();
 	void RotateHand();
 
+	static float AngleBetween(const FVector& A, const FVector& B);
+
 	//Data and Settings
 	FArmIKElbowSettings ElbowSettings;
 	FArmIKBeforePositioningSettings BeforePositioningSettings;

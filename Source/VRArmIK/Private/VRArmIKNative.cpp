@@ -142,7 +142,7 @@ void FVROneArmIK::RotateShoulder()
 	}
 		
 	UpperArmRotation = UKismetMathLibrary::FindLookAtRotation(ArmDirection, TargetShoulderDirection);	// FRotationMatrix::MakeFromX(TargetShoulderDirection - ArmDirection).Rotator();
-	ArmData->Shoulder.SetRotation(FQuat(LowerArmRotation.Quaternion() * FVector(0, 0, 1.f), EulerAngles.Yaw) * ArmData->Shoulder.GetRotation());
+	ArmData->Shoulder.SetRotation(FQuat(LowerArmRotation.Quaternion() * FVector(0, 0, 1.f), FMath::DegreesToRadians(EulerAngles.Yaw)) * ArmData->Shoulder.GetRotation());	//NB: changed degrees to rad
 	LowerArmRotation = (UpperArmRotation.Quaternion() * NextLowerArmAngle.Quaternion() * LowerArmStartRotation.Quaternion()).Rotator();
 }
 
@@ -192,7 +192,26 @@ float FVROneArmIK::GetElbowTargetAngle()
 
 void FVROneArmIK::CorrectElbowRotation()
 {
-	//todo
+	const FArmIKBeforePositioningSettings& s = BeforePositioningSettings;
+
+	FVector LocalTargetPos = ShoulderAnchor.InverseTransformPosition(Target.GetLocation()) / ArmData->ArmLength();
+	float ElbowOutsideFactor = FMath::Clamp(
+		FMath::Clamp((s.StartBelowZ - LocalTargetPos.Z) / FMath::Abs(s.StartBelowZ) * 0.5f, 0.f, 1.f) *
+		FMath::Clamp((LocalTargetPos.Y - s.StartAboveY) / FMath::Abs(s.StartAboveY), 0.f, 1.f) *
+		FMath::Clamp( 1.f - LocalTargetPos.X * (bIsLeft ? -1.f: 1.f), 0.f, 1.f)
+		, 0.f, 1.f) * s.Weight;
+
+	FVector ShoulderHandDirection = (UpperArmPos - HandPos);
+	ShoulderHandDirection.Normalize();
+	FVector TargetDir = ArmData->Shoulder.GetRotation() * (FVector(0, 0, 1) + (s.bCorrectElbowOutside ? (ArmDirection + FVector(1, 0, 0) * -0.2f) * ElbowOutsideFactor : FVector(0)));
+	FVector Cross = FVector::CrossProduct(ShoulderHandDirection, TargetDir * 100000.f);	//x100 of unity
+	
+	FVector UpperArmUp = UpperArmRotation.Quaternion() * FVector(0, 0, 1);
+
+	float ElbowTargetUp = FVector::DotProduct(UpperArmUp, TargetDir);
+	float ElbowAngle = AngleBetween(Cross, UpperArmUp) + (bIsLeft ? 0.f : 180.f);
+	FQuat Rotation = FQuat(ShoulderHandDirection, FMath::DegreesToRadians(ElbowAngle * FMath::Sign(ElbowTargetUp)));
+	ArmData->Shoulder.SetRotation(Rotation * ArmData->Shoulder.GetRotation());
 }
 
 void FVROneArmIK::RotateElbow(float Angle)
@@ -200,7 +219,7 @@ void FVROneArmIK::RotateElbow(float Angle)
 	FVector ShoulderHandDirection = (UpperArmPos - HandPos);
 	ShoulderHandDirection.Normalize();
 
-	FQuat Rotation = FQuat(ShoulderHandDirection, Angle);
+	FQuat Rotation = FQuat(ShoulderHandDirection, FMath::DegreesToRadians(Angle));
 	UpperArmRotation = (Rotation * UpperArmRotation.Quaternion()).Rotator();
 }
 
@@ -228,6 +247,11 @@ void FVROneArmIK::RotateElbowWithHandForward()
 void FVROneArmIK::RotateHand()
 {
 	//todo
+}
+
+float FVROneArmIK::AngleBetween(const FVector& A, const FVector& B)
+{
+	return FMath::RadiansToDegrees(acosf(A | B));
 }
 
 //FVRArmIKNative

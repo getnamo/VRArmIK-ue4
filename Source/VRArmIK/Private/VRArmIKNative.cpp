@@ -270,7 +270,9 @@ void FVROneArmIK::PositionElbow()
 
 void FVROneArmIK::RotateElbowWithHandRight()
 {
-	//todo
+	const FArmIKHandSettings& s = HandSettings;
+	FVector HandUpVec = Target.GetRotation().GetUpVector();
+	float ForwardAngle = AngleBetween(LowerArmRotation.Quaternion() * FVector::RightVector, Target.GetRotation() * FVector::RightVector)
 }
 
 void FVROneArmIK::RotateElbowWithHandForward()
@@ -286,6 +288,22 @@ void FVROneArmIK::RotateHand()
 float FVROneArmIK::AngleBetween(const FVector& A, const FVector& B)
 {
 	return FMath::RadiansToDegrees(acosf(A | B));
+}
+
+float FVROneArmIK::AngleBetweenWithForwardAxis(const FVector& A, const FVector& B, const FVector& Forward, const FVector& Axis)
+{
+	FVector TempForward = Forward;
+	float AngleA = CustomAxisAngle(A, TempForward, Axis);
+	float AngleB = CustomAxisAngle(B, TempForward, Axis);
+	
+	return FMath::FindDeltaAngle(AngleA, AngleB);
+}
+
+float FVROneArmIK::CustomAxisAngle(const FVector& A, FVector& Forward, const FVector& Axis)
+{
+	FVector Right = FVector::CrossProduct(Axis, Forward);
+	Forward = FVector::CrossProduct(Right, Axis);
+	return FMath::Atan2(A | Right, FMath::RadiansToDegrees(A | Forward)); //not sure if we need that conversion vs unity
 }
 
 //FVRArmIKNative

@@ -378,7 +378,7 @@ float FVROneArmIK::AngleBetweenWithForwardAxis(const FVector& A, const FVector& 
 	float AngleA = CustomAxisAngle(A, TempForward, Axis);
 	float AngleB = CustomAxisAngle(B, TempForward, Axis);
 	
-	return FMath::FindDeltaAngle(AngleA, AngleB);
+	return FMath::FindDeltaAngleDegrees(AngleA, AngleB);
 }
 
 float FVROneArmIK::CustomAxisAngle(const FVector& A, FVector& Forward, const FVector& Axis)

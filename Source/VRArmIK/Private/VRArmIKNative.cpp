@@ -1,4 +1,4 @@
-// Copyright 2019-Current Synthetic Insights Ltd. All Rights Reserved.
+// Copyright 2019-current Getnamo. All Rights Reserved.
 
 #include "VRArmIKNative.h"
 #include "App.h"

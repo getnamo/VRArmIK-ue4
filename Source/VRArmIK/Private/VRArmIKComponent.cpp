@@ -29,3 +29,8 @@ void UVRArmIKComponent::UpdateInput(const FTransform& InOrigin, const FTransform
 	VRArmIK->UpdateInput(InOrigin, InHandLeft, InHandRight, InHead);
 }
 
+void UVRArmIKComponent::CalibrateAtTPose()
+{
+	VRArmIK->CalibrateIK();
+}
+

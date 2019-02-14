@@ -29,6 +29,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category="VRArmIK Functions")
 	void UpdateInput(const FTransform& InOrigin, const FTransform& InHandLeft, const FTransform& InHandRight, const FTransform& InHead);
 
+	UFUNCTION(BlueprintCallable, Category = "VRArmIK Functions")
+	void CalibrateAtTPose();
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

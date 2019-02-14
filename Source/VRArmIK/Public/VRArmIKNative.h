@@ -35,6 +35,9 @@ protected:
 	static float AngleBetweenWithForwardAxis(const FVector& A, const FVector& B, const FVector& Forward, const FVector& Axis);
 	static float CustomAxisAngle(const FVector& A, FVector& Forward, const FVector& Axis);
 
+	static float ToSignedEulerAngle(float InFloat);
+	static float ToPositiveEulerAngle(float InFloat);
+
 	//Data and Settings
 	FArmIKElbowSettings ElbowSettings;
 	FArmIKBeforePositioningSettings BeforePositioningSettings;

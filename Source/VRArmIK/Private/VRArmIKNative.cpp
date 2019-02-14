@@ -247,8 +247,7 @@ void FVROneArmIK::CorrectElbowAfterPositioning()
 	float ElbowTargetUp = UpperArmUp | TargetDir;
 	float ElbowAngle2 = AngleBetween(Cross, UpperArmUp) + (bIsLeft ? 0.f : 180.f);
 
-	//below is missing toSignedEulerAngle(), not sure what that does yet
-	FQuat Rotation = FQuat(ShoulderHandDirection, ElbowAngle2 * FMath::Sign(ElbowTargetUp) * FMath::Clamp(Weight, 0.f, 1.f));
+	FQuat Rotation = FQuat(ShoulderHandDirection, ElbowAngle2 * ToSignedEulerAngle(FMath::Sign(ElbowTargetUp)) * FMath::Clamp(Weight, 0.f, 1.f));
 	ArmData->Shoulder.SetRotation(Rotation * ArmData->Shoulder.GetRotation());
 }
 
@@ -327,7 +326,7 @@ void FVROneArmIK::RotateElbowWithHandForward()
 	DeltaElbowForward = FMath::Sign(DeltaElbowForward) * FMath::Pow(FMath::Abs(DeltaElbowForward), s.HandDeltaForwardPow) * 180.f;
 	InterpolatedDeltaElbowForward = FMath::Lerp(InterpolatedDeltaElbowForward, DeltaElbowForward, DeltaTime / s.RotateElbowWithHandDelay);
 
-	float SignedInterpolated = InterpolatedDeltaElbowForward; //not sure what toSignedEulerAngle does
+	float SignedInterpolated = ToSignedEulerAngle(InterpolatedDeltaElbowForward);
 	RotateElbow(SignedInterpolated * s.HandDeltaForwardFactor);
 }
 
@@ -386,6 +385,21 @@ float FVROneArmIK::CustomAxisAngle(const FVector& A, FVector& Forward, const FVe
 	FVector Right = FVector::CrossProduct(Axis, Forward);
 	Forward = FVector::CrossProduct(Right, Axis);
 	return FMath::Atan2(A | Right, FMath::RadiansToDegrees(A | Forward)); //not sure if we need that conversion vs unity
+}
+
+float FVROneArmIK::ToSignedEulerAngle(float InFloat)
+{
+	float result = ToPositiveEulerAngle(InFloat);
+	if (result > 180.f) 
+	{
+		result = result - 360.f;
+	}
+	return result;
+}
+
+float FVROneArmIK::ToPositiveEulerAngle(float InFloat)
+{
+	return FMath::Fmod(FMath::Fmod(InFloat, 360.f) + 360.f, 360.f);
 }
 
 //FVRArmIKNative

@@ -440,7 +440,13 @@ void FVRArmIKNative::PollArmIKTransforms(FArmIKBodyData& OutTransforms)
 	OutTransforms = BodyTransforms;
 }
 
-void FVRArmIKNative::CalibrateIK()
+void FVRArmIKNative::CalibrateAtTPose()
 {
+	BodyTransforms.Calibrate();
+}
+
+void FVRArmIKNative::CalibrateFromSaved(const FArmIKBodyData& SavedData)
+{
+	BodyTransforms = SavedData;
 	BodyTransforms.Calibrate();
 }

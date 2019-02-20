@@ -87,7 +87,9 @@ public:
 	void PollArmIKTransforms(FArmIKBodyData& OutTransforms);
 
 	//Calibrate call based on current inputs, assumes a T pose
-	void CalibrateIK();
+	void CalibrateAtTPose();
+
+	void CalibrateFromSaved(const FArmIKBodyData& SavedData);
 
 protected:
 	FArmIKBodyData BodyTransforms;

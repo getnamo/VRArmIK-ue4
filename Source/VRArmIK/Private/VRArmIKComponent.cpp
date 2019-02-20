@@ -1,11 +1,15 @@
 // Copyright 2019-current Getnamo. All Rights Reserved.
 
 #include "VRArmIKComponent.h"
+#include "SIOJConvert.h"
+#include "Runtime/Core/Public/Misc/Paths.h"
+#include "Runtime/Core/Public/Misc/FileHelper.h"
 
 UVRArmIKComponent::UVRArmIKComponent(const FObjectInitializer &init) : UActorComponent(init)
 {
 	PrimaryComponentTick.bCanEverTick = false;
 	VRArmIK = MakeShareable(new FVRArmIKNative());
+	DefaultsJsonFile = TEXT("VRArmIKConfig.json");
 }
 
 
@@ -16,6 +20,19 @@ void UVRArmIKComponent::BeginPlay()
 	{
 		OnIKUpdated.Broadcast(Data);
 	};
+
+	const FString SavedDir = FPaths::ProjectSavedDir();
+	const FString FullPath = SavedDir + DefaultsJsonFile;
+
+	//load defaults if they exist
+	FArmIKBodyData LoadedBodyData;
+
+	bool bDidLoad = USIOJConvert::JsonFileToUStruct(FullPath, FArmIKBodyData::StaticStruct(), &LoadedBodyData);
+
+	if (bDidLoad)
+	{
+		VRArmIK->CalibrateFromSaved(LoadedBodyData);
+	}
 }
 
 void UVRArmIKComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -31,6 +48,15 @@ void UVRArmIKComponent::UpdateInput(const FTransform& InOrigin, const FTransform
 
 void UVRArmIKComponent::CalibrateAtTPose()
 {
-	VRArmIK->CalibrateIK();
+	VRArmIK->CalibrateAtTPose();
+
+	//save calibration
+	const FString SavedDir = FPaths::ProjectSavedDir();
+	const FString FullPath = SavedDir + DefaultsJsonFile;
+
+	FArmIKBodyData CalibratedBodyData;
+	VRArmIK->PollArmIKTransforms(CalibratedBodyData);
+
+	USIOJConvert::ToJsonFile(FullPath, FArmIKBodyData::StaticStruct(), &CalibratedBodyData);
 }
 

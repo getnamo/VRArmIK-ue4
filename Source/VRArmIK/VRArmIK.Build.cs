@@ -38,6 +38,7 @@ public class VRArmIK : ModuleRules
 				"Engine",
 				"Slate",
 				"SlateCore",
+				"SIOJson"
 				// ... add private dependencies that you statically link with here ...	
 			}
 			);

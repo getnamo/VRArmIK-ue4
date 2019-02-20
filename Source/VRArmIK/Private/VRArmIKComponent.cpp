@@ -60,3 +60,8 @@ void UVRArmIKComponent::CalibrateAtTPose()
 	USIOJConvert::ToJsonFile(FullPath, FArmIKBodyCalibration::StaticStruct(), &(CalibratedBodyData.Calibrated));
 }
 
+void UVRArmIKComponent::PollLatestData(FArmIKBodyData& OutBodyData)
+{
+	VRArmIK->PollArmIKTransforms(OutBodyData);
+}
+

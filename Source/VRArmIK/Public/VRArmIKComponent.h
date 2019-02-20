@@ -35,6 +35,9 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "VRArmIK Functions")
 	void CalibrateAtTPose();
 
+	UFUNCTION(BlueprintCallable, Category = "VRArmIK Functions")
+	void PollLatestData(FArmIKBodyData& OutBodyData);
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;

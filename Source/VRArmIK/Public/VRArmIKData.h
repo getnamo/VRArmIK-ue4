@@ -205,45 +205,54 @@ struct VRARMIK_API FArmIKArmData
 };
 
 USTRUCT(BlueprintType)
-struct VRARMIK_API FArmIKBodyData
+struct VRARMIK_API FArmIKBodyCalibration
 {
 	GENERATED_USTRUCT_BODY()
 
-	//Input
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "FArmIKTransforms")
-	FTransform Origin;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "FArmIKTransforms")
-	FTransform Head;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "FArmIKTransforms")
-	FArmIKArmData Left;
-
-	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "FArmIKTransforms")
-	FArmIKArmData Right;
-
-	UPROPERTY(BlueprintReadOnly, Category = "FArmIKTransforms")
+	UPROPERTY(BlueprintReadOnly, Category = "FArmIKBodyData")
 	float ShoulderWidth;
 
-	//Derived
-	UPROPERTY(BlueprintReadOnly, Category = "FArmIKTransforms")
-	FTransform Neck;
-
 	//Derived at Calibration
-	UPROPERTY(BlueprintReadOnly, Category = "FArmIKTransforms")
+	UPROPERTY(BlueprintReadOnly, Category = "FArmIKBodyData")
 	float ArmSpan;
 
-	UPROPERTY(BlueprintReadOnly, Category = "FArmIKTransforms")
+	UPROPERTY(BlueprintReadOnly, Category = "FArmIKBodyData")
 	float Height;
 
-	//should only be called during calibration pose (T pose)
-	void Calibrate();
-
-	FArmIKBodyData()
+	FArmIKBodyCalibration()
 	{
 		//defaults in cm, some will be overwritten by calibrate
 		ArmSpan = 139.f;
 		Height = 170.f;
 		ShoulderWidth = 31.f;
 	}
+};
+
+USTRUCT(BlueprintType)
+struct VRARMIK_API FArmIKBodyData
+{
+	GENERATED_USTRUCT_BODY()
+
+	//Input
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "FArmIKBodyData")
+	FTransform Origin;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "FArmIKBodyData")
+	FTransform Head;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "FArmIKBodyData")
+	FArmIKArmData Left;
+
+	UPROPERTY(BlueprintReadWrite, EditAnywhere, Category = "FArmIKBodyData")
+	FArmIKArmData Right;
+
+	UPROPERTY(BlueprintReadOnly, Category = "FArmIKBodyData")
+	FArmIKBodyCalibration Calibrated;
+
+	//Derived
+	UPROPERTY(BlueprintReadOnly, Category = "FArmIKBodyData")
+	FTransform Neck;
+
+	//should only be called during calibration pose (T pose)
+	void Calibrate();
 };

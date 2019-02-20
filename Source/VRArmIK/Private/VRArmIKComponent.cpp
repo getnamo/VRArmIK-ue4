@@ -9,7 +9,7 @@ UVRArmIKComponent::UVRArmIKComponent(const FObjectInitializer &init) : UActorCom
 {
 	PrimaryComponentTick.bCanEverTick = false;
 	VRArmIK = MakeShareable(new FVRArmIKNative());
-	DefaultsJsonFile = TEXT("VRArmIKConfig.json");
+	DefaultsJsonFile = TEXT("VRArmIKCalibration.json");
 }
 
 
@@ -25,13 +25,13 @@ void UVRArmIKComponent::BeginPlay()
 	const FString FullPath = SavedDir + DefaultsJsonFile;
 
 	//load defaults if they exist
-	FArmIKBodyData LoadedBodyData;
+	FArmIKBodyCalibration LoadedBodyCalibration;
 
-	bool bDidLoad = USIOJConvert::JsonFileToUStruct(FullPath, FArmIKBodyData::StaticStruct(), &LoadedBodyData);
+	bool bDidLoad = USIOJConvert::JsonFileToUStruct(FullPath, FArmIKBodyCalibration::StaticStruct(), &LoadedBodyCalibration);
 
 	if (bDidLoad)
 	{
-		VRArmIK->CalibrateFromSaved(LoadedBodyData);
+		VRArmIK->CalibrateFromSaved(LoadedBodyCalibration);
 	}
 }
 
@@ -57,6 +57,6 @@ void UVRArmIKComponent::CalibrateAtTPose()
 	FArmIKBodyData CalibratedBodyData;
 	VRArmIK->PollArmIKTransforms(CalibratedBodyData);
 
-	USIOJConvert::ToJsonFile(FullPath, FArmIKBodyData::StaticStruct(), &CalibratedBodyData);
+	USIOJConvert::ToJsonFile(FullPath, FArmIKBodyCalibration::StaticStruct(), &(CalibratedBodyData.Calibrated));
 }
 

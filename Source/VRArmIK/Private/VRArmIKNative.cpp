@@ -445,8 +445,7 @@ void FVRArmIKNative::CalibrateAtTPose()
 	BodyTransforms.Calibrate();
 }
 
-void FVRArmIKNative::CalibrateFromSaved(const FArmIKBodyData& SavedData)
+void FVRArmIKNative::CalibrateFromSaved(const FArmIKBodyCalibration& SavedData)
 {
-	BodyTransforms = SavedData;
-	BodyTransforms.Calibrate();
+	BodyTransforms.Calibrated = SavedData;
 }

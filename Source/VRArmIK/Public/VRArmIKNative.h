@@ -89,7 +89,7 @@ public:
 	//Calibrate call based on current inputs, assumes a T pose
 	void CalibrateAtTPose();
 
-	void CalibrateFromSaved(const FArmIKBodyData& SavedData);
+	void CalibrateFromSaved(const FArmIKBodyCalibration& SavedData);
 
 protected:
 	FArmIKBodyData BodyTransforms;

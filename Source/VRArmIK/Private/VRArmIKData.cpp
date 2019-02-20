@@ -21,6 +21,6 @@ float FArmIKArmData::ArmLength()
 //FArmIKBodyData
 void FArmIKBodyData::Calibrate()
 {
-	ArmSpan = (Left.Hand.GetLocation() - Right.Hand.GetLocation()).Size();
-	Height = Head.GetLocation().Z;
+	Calibrated.ArmSpan = (Left.Hand.GetLocation() - Right.Hand.GetLocation()).Size();
+	Calibrated.Height = Head.GetLocation().Z;
 }
